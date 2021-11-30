@@ -1,4 +1,4 @@
-package com.sdi.annonceimmobilire;
+package com.sdi.annonceimmobiliere;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
