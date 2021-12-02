@@ -1,1 +1,64 @@
+<p-toast></p-toast>
+<div class="container-fluid mt-5" style="width: 80%;margin: auto;">
+	<div class="row">
+		<div class="col-10 datagrid">
+			<p-table #annonceDG
+					 [value]="annonces"
+					 loadingIcon="app-spinner"
+					 [paginator]="true"
+					 [rows]="14"
+					 [loading]="loading"
+					 [(selection)]="annonceSelectionned"
+					 [scrollable]="true"
+					 scrollHeight="420px"
+					 [resetPageOnSort]="false"
+					 dataKey="id"
+					 sortField="title">
 
+				<ng-template pTemplate="colgroup">
+					<colgroup>
+						<col style="width: 25%"><!-- Image -->
+						<col style="width: 20%"><!-- Title -->
+						<col style="width: 49%"><!-- Description -->
+						<col style="width: 6%"><!-- Actions -->
+					</colgroup>
+				</ng-template>
+				<ng-template pTemplate="header">
+					<tr>
+						<th class="text-center">
+							Image
+						</th>
+						<th class="text-center" pSortableColumn="title">
+							Titre
+							<p-sortIcon field="title"></p-sortIcon>
+						</th>
+						<th class="text-center" pSortableColumn="description">
+							Description
+							<p-sortIcon field="description"></p-sortIcon>
+						</th>
+						<th class="text-center">
+							Action
+						</th>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-annonce>
+					<tr [pSelectableRow]="annonce">
+						<ng-container>
+							<td></td>
+							<td class="text-left">{{ annonce.title }}</td>
+							<td class="text-left">{{ annonce.description }}</td>
+							<td class="col-actions">
+
+							</td>
+						</ng-container>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="10" style="text-align: center;" translate>Aucune annonce</td>
+					</tr>
+				</ng-template>
+			</p-table>
+		</div>
+	</div>
+</div>

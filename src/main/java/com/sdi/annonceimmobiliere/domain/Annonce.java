@@ -83,4 +83,9 @@ public class Annonce {
 	public String getFileName() {
 		return fileName;
 	}
+
+	@Override
+	public String toString() {
+		return "Annonce [id=" + id + ", title=" + title + ", description=" + description + "]";
+	}
 }
