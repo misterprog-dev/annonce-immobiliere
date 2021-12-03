@@ -9,8 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-
-import com.sun.istack.NotNull;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = Annonce.TABLE_NAME)
@@ -33,8 +32,7 @@ public class Annonce {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@NotNull
-	@Column(name = "file_name", nullable = false)
+	@Column(name = "file_name")
 	private String fileName;
 
 	/**

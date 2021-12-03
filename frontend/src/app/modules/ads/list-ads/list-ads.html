@@ -61,4 +61,26 @@
 			</p-table>
 		</div>
 	</div>
+	<div class="footer">
+		<p-button label="Créer une annonce"
+				  (click)="openEditingModal()"></p-button>
+		<p-button label="Modifier une annonce"
+				  icon="pi pi-pencil"
+				  (click)="openEditingModal(annonceSelectionned)"
+				  [disabled]="!annonceSelectionned">
+		</p-button>
+		<p-button label="Supprimer une annonce"
+				  icon="pi pi-times"
+				  (click)="openDeletingModal(annonceSelectionned)"
+				  [disabled]="!annonceSelectionned">
+		</p-button>
+	</div>
 </div>
+
+<!-- We call our modal here -->
+<edit-ad-modal [(visible)]="editingVisible"
+			   [annonce]="annonceSelectionned"
+			   (annonceChange)="onAdsChanged()"></edit-ad-modal>
+<delete-ad-modal [(visible)]="deleteVisible"
+			   [annonce]="annonceSelectionned"
+			   (annonceChange)="onAdsChanged()"></delete-ad-modal>

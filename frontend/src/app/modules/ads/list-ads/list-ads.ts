@@ -11,10 +11,14 @@ import { Table } from 'primeng/table';
 	styleUrls: ['./list-ads.scss']
 })
 export class ListAds implements OnInit {
-	@ViewChild('annonceDG') annonceDG: Table | undefined;
+	// @ts-ignore
+	@ViewChild('annonceDG') annonceDG: Table;
 	loading: boolean = false;
 	annonces: Annonce[] = [];
-	annonceSelectionned: Annonce = new Annonce();
+	// @ts-ignore
+	annonceSelectionned: Annonce ;
+	editingVisible: boolean = false;
+	deleteVisible: boolean = false;
 
 	constructor(private annonceService: AnnonceService, private messageService: MessageService) {
 	}
@@ -41,5 +45,34 @@ export class ListAds implements OnInit {
 				detail: 'Error : ' + err.errors
 			});
 		});
+	}
+
+	/**
+	 * Open editing modal.
+	 *
+	 * @param annonce the ad to edit.
+	 */
+	openEditingModal(annonce?: Annonce): void {
+		this.editingVisible = true;
+		// @ts-ignore
+		this.annonceSelectionned = annonce;
+	}
+
+	/**
+	 * Open deleting modal.
+	 *
+	 * @param annonce the ad to delete.
+	 */
+	openDeletingModal(annonce: Annonce) {
+		this.deleteVisible = true;
+		// @ts-ignore
+		this.annonceSelectionned = annonce ? annonce : undefined;
+	}
+
+	/**
+	 * Callback to update list after operation.
+	 */
+	onAdsChanged(): void {
+		this.readAds();
 	}
 }

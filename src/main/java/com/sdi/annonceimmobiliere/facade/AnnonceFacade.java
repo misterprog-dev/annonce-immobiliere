@@ -2,7 +2,6 @@ package com.sdi.annonceimmobiliere.facade;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -46,7 +45,7 @@ public class AnnonceFacade {
 	 */
 	@Transactional(readOnly = true)
 	public Set<AnnonceVO> readAds() {
-		return annonceVoFactory.annoncesVO((List<Annonce>) annonceRepository.findAll());
+		return annonceVoFactory.annoncesVO(annonceRepository.findAll());
 	}
 
 	/**

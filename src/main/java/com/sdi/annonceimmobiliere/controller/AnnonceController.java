@@ -18,9 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.sdi.annonceimmobiliere.facade.AnnonceFacade;
 import com.sdi.annonceimmobiliere.presentation.vo.AnnonceVO;
 
-@RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(value = "/api/annonces")
+@RestController
 public class AnnonceController {
 	private final AnnonceFacade annonceFacade;
 
