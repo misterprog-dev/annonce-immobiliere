@@ -1,12 +1,12 @@
 package com.sdi.annonceimmobiliere.facade;
 
 import javax.persistence.EntityNotFoundException;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -16,24 +16,25 @@ import com.sdi.annonceimmobiliere.domain.Annonce;
 import com.sdi.annonceimmobiliere.presentation.factory.AnnonceVoFactory;
 import com.sdi.annonceimmobiliere.presentation.vo.AnnonceVO;
 import com.sdi.annonceimmobiliere.repository.AnnonceRepository;
-import com.sdi.annonceimmobiliere.service.FileUploadService;
+import com.sdi.annonceimmobiliere.service.FileStorageService;
 
 /**
  * Facade to manage all ads.
  */
 @Service
 public class AnnonceFacade {
-	private static final String uploadDir = "upload/";
 	private static final Logger logger = LoggerFactory.getLogger(AnnonceFacade.class);
 
 	private final AnnonceRepository annonceRepository;
 	private final AnnonceVoFactory annonceVoFactory;
-	private final FileUploadService fileUploadService;
+	private final FileStorageService fileStorageService;
 
-	public AnnonceFacade(AnnonceRepository annonceRepository, AnnonceVoFactory annonceVoFactory, FileUploadService fileUploadService) {
+	public AnnonceFacade(AnnonceRepository annonceRepository,
+						 AnnonceVoFactory annonceVoFactory,
+						 FileStorageService fileStorageService) {
 		this.annonceRepository = annonceRepository;
 		this.annonceVoFactory = annonceVoFactory;
-		this.fileUploadService = fileUploadService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	/**
@@ -55,12 +56,7 @@ public class AnnonceFacade {
 	@Transactional(readOnly = true)
 	public AnnonceVO readAd(Long id) {
 		Annonce annonce = annonceRepository.findById(id)
-				.orElse(null);
-
-		if (annonce == null) {
-			throw new EntityNotFoundException("Entity not found");
-		}
-
+				.orElseThrow(()-> new EntityNotFoundException("Entity not found"));
 		return annonceVoFactory.annonceVO(annonce);
 	}
 
@@ -72,13 +68,12 @@ public class AnnonceFacade {
 	@Transactional
 	public void deleteAd(Long id) {
 		Annonce annonce = annonceRepository.findById(id)
-				.orElse(null);
-
-		if (annonce == null) {
-			throw new EntityNotFoundException("Entity not found");
-		}
+				.orElseThrow(()-> new EntityNotFoundException("Entity not found"));
 
 		annonceRepository.delete(annonce);
+
+		// We store image.
+		fileStorageService.delete(id.toString());
 	}
 
 	/**
@@ -92,29 +87,14 @@ public class AnnonceFacade {
 		Annonce annonce = new Annonce();
 		annonce.setTitle(annonceVO.getTitle());
 		annonce.setDescription(annonceVO.getDescription());
-
-		String fileName = null;
-		// We generate a unique name for image
 		if (image != null) {
-			fileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-			String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-
-			annonce = annonceRepository.save(annonce);
-			// Final name
-			fileName = annonce.getId() + extension;
-
-			try {
-				// We save file in upload dir.
-				String imageDir = uploadDir + fileName;
-				fileUploadService.saveFile(imageDir, fileName, image);
-			}
-			catch (IOException e) {
-				logger.info(e.getMessage());
-			}
+			annonce.setFileName(StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename())));
 		}
-
-		annonce.setFileName(fileName);
-		annonceRepository.save(annonce);
+		annonce = annonceRepository.save(annonce);
+		// We store image.
+		if (image != null) {
+			fileStorageService.save(image, annonce.getId().toString(), false);
+		}
 	}
 
 	/**
@@ -124,38 +104,34 @@ public class AnnonceFacade {
 	 * @param annonceVO ad information.
 	 * @param image image of ad.
 	 */
+	@Transactional
 	public void update(Long id, AnnonceVO annonceVO, MultipartFile image) {
 		Annonce annonce = annonceRepository.findById(id)
-				.orElse(null);
-
-		if (annonce == null) {
-			throw new EntityNotFoundException("Entity not found");
-		}
+				.orElseThrow(()-> new EntityNotFoundException("Entity not found"));
 
 		annonce.setTitle(annonceVO.getTitle());
 		annonce.setDescription(annonceVO.getDescription());
-
-		String fileName = annonce.getFileName();
-
-		// We check if the ad had a image
-		if (fileName == null) {
-			fileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
-			String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
-
-			// Final name
-			fileName = annonce.getId() + extension;
+		if (image != null) {
+			annonce.setFileName(StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename())));
+			// We update image.
+			fileStorageService.save(image, annonce.getId().toString(), true);
 		}
-
-		try {
-			// We save file in upload dir.
-			String imageDir = uploadDir + fileName;
-			fileUploadService.saveFile(imageDir, fileName, image);
+		else {
+			// We delete image.
+			annonce.setFileName(null);
+			fileStorageService.delete(annonce.getId().toString());
 		}
-		catch (IOException e) {
-			logger.info(e.getMessage());
-		}
-
-		annonce.setFileName(fileName);
 		annonceRepository.save(annonce);
+	}
+
+	/**
+	 * Read a file of ad.
+	 *
+	 * @param folder the folder of file.
+	 * @param fileName the file name.
+	 * @return a file of ad.
+	 */
+	public Resource getFile(String folder, String fileName) {
+		return fileStorageService.read(folder, fileName);
 	}
 }

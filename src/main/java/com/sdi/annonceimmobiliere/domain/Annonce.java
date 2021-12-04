@@ -33,8 +33,7 @@ public class Annonce {
 	@Column(name = "description", nullable = false)
 	private String description;
 
-	@NotNull
-	@Column(name = "file_name", nullable = false)
+	@Column(name = "file_name")
 	private String fileName;
 
 	/**

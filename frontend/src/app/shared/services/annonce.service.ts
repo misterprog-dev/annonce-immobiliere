@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Annonce } from 'src/app/shared/models/annonce.model';
 import { map } from 'rxjs/operators';
@@ -49,6 +49,13 @@ export class AnnonceService {
 		return this.http.post<void>(this.url, formData);
 	}
 
+	/**
+	 * Update a ad.
+	 *
+	 * @param id the id of ad.
+	 * @param annonce the ad.
+	 * @param uploadedFile image of ad.
+	 */
 	updateAd(id: number, annonce: Annonce, uploadedFile: File): Observable<void> {
 		const formData = new FormData();
 		formData.append('image', uploadedFile);
@@ -67,5 +74,20 @@ export class AnnonceService {
 	 */
 	deleteAd(id: number): Observable<void> {
 		return this.http.delete<void>(`${this.url}/${id}`,{});
+	}
+
+	/**
+	 * Load a file
+	 *
+	 * @param folder the folder of file.
+	 * @param fileName file name
+	 * @return file
+	 */
+	getFile(folder: string, fileName: string): Observable<HttpResponse<Blob>> {
+		const httpOptions = {
+			responseType: 'arraybuffer' as 'json',
+			observe: 'response' as 'body'
+		};
+		return this.http.get<HttpResponse<Blob>>(`${this.url}/${folder}/${fileName}/file`, httpOptions);
 	}
 }

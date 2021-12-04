@@ -23,7 +23,9 @@ export class EditAdModal implements OnInit {
 	loading: boolean = false;
 	// @ts-ignore
 	formAd: FormGroup;
-	uploadedFile: any;
+	// @ts-ignore
+	uploadedFile: File;
+	url: string = '';
 
 	constructor(private formBuilder: FormBuilder,
 				private annonceService: AnnonceService,
@@ -45,6 +47,7 @@ export class EditAdModal implements OnInit {
 		this.visibleChange.emit(true);
 		if (this.isUpdating) {
 			this.activateUpdating();
+			this.readFile();
 		}
 	}
 
@@ -65,12 +68,35 @@ export class EditAdModal implements OnInit {
 	}
 
 	/**
+	 * Read file for updating.
+	 */
+	readFile(): void {
+		if (this.annonce?.fileName) {
+			// @ts-ignore
+			this.annonceService.getFile(this.annonce?.id.toString(), this.annonce?.fileName).subscribe((response: HttpResponse<Blob>) => {
+				const file: Blob = new Blob([response.body], { type: 'image/*' });
+				// @ts-ignore
+				this.uploadedFile = new File([file], this.annonce?.fileName);
+				this.url = './assets/upload/' + this.annonce?.id + '/' + this.annonce?.fileName;
+			}, (error => {
+				this.messageService.add({
+					severity: 'error',
+					summary: 'Error file reading',
+					detail: 'Error : ' + error.errors
+				});
+			}));
+		}
+	}
+
+	/**
 	 * Close Modal
 	 */
 	onClose(): void {
 		this.visibleChange.emit(false);
 		this.formAd.reset();
 		this.loading = false;
+		// @ts-ignore
+		this.uploadedFile = undefined;
 	}
 
 	/**
@@ -124,6 +150,13 @@ export class EditAdModal implements OnInit {
 	 */
 	onUpload($event: any) {
 		this.uploadedFile = $event.files[0];
+		let reader = new FileReader();
+
+		reader.onload = (event:any) => {
+			this.url = event.target.result;
+		}
+		reader.readAsDataURL($event.files[0]);
+
 		this.fileUpload.clear();
 	}
 
@@ -141,5 +174,15 @@ export class EditAdModal implements OnInit {
 				detail: 'Error : ' + fileUpload.msgs[0].detail
 			});
 		}
+	}
+
+	/**
+	 * Delete image
+	 */
+	delete(): void {
+		// @ts-ignore
+		this.url = undefined;
+		// @ts-ignore
+		this.uploadedFile = undefined;
 	}
 }

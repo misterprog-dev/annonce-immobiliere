@@ -34,9 +34,17 @@
 										  invalidFileSizeMessageDetail="Image trop grande"
 										  (onSelect)="validateFile($event, fileUpload)">
 							</p-fileUpload>
+							<br>
+							<p-button label="Supprimer"
+									  icon="pi pi-times"
+									  (click)="delete()"
+									  [disabled]="!url || url === ''">
+							</p-button>
 						</div>
-						<div class="col-4">
-							<p *ngIf="uploadedFile" style="margin-left: 10px">{{uploadedFile.name}}</p>
+						<div *ngIf="!!url || url !== ''" class="col-4" style="margin-left: 100px">
+							<img src="{{url}}"
+								 height="80px"
+								 width="100"/>
 						</div>
 					</div>
 					<hr>

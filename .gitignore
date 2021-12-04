@@ -50,3 +50,6 @@ frontend/bazel-out
 
 # dependencies
 frontend/node_modules
+
+# files upload.
+frontend/src/assets/upload/
