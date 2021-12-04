@@ -1,0 +1,85 @@
+<p-toast></p-toast>
+<p-dialog [(visible)]="visible"
+		  [baseZIndex]="1000"
+		  [modal]="true"
+		  [responsive]="true"
+		  [closeOnEscape]="false"
+		  [draggable]="true"
+		  [resizable]="false"
+		  (onShow)="openModalEdition()"
+		  (onHide)="onClose()"
+		  [focusOnShow]="false"
+		  [style]="{width: '35vw'}">
+
+	<p-header>
+		{{ getEditingModalTitle() }}
+	</p-header>
+
+	<div class="container-fluid">
+		<form [formGroup]="formAd">
+			<div class="row p-fluid">
+				<fieldset class="col-12">
+					<div class="form-group row" style="display: flex;">
+						<div class="col-8">
+							<p-fileUpload #fileUpload
+										  name="myfile"
+										  mode="basic"
+										  [customUpload]="true"
+										  [auto]="true"
+										  chooseLabel="Ajouter une image"
+										  (uploadHandler)="onUpload($event)"
+										  accept="image/*"
+										  [maxFileSize]="1000000"
+										  invalidFileTypeMessageDetail="Le type de l'image n'est pas valide"
+										  invalidFileSizeMessageDetail="Image trop grande"
+										  (onSelect)="validateFile($event, fileUpload)">
+							</p-fileUpload>
+						</div>
+						<div class="col-4">
+							<p *ngIf="uploadedFile" style="margin-left: 10px">{{uploadedFile.name}}</p>
+						</div>
+					</div>
+					<hr>
+					<div class="form-group row mt-3">
+						<label class="col-3 label-required">Titre (*)</label>
+						<div class="col-8">
+							<div style="width: 653px">
+								<input type="text"
+									   class="col-5"
+									   formControlName="title"
+									   pInputText>
+							</div>
+						</div>
+					</div>
+					<div class="form-group row mt-3">
+						<label class="col-3 label-required">Description (*)</label>
+						<div class="col-8">
+							<div style="width: 653px">
+								<textarea class="col-5"
+										  formControlName="description"
+										  pInputTextarea
+										  rows="10"
+										  maxlength="255"></textarea>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			</div>
+		</form>
+	</div>
+	<p-footer>
+		<div [hidden]="loading">
+			<button type="button" pButton
+					[disabled]="formAd?.invalid"
+					(click)="onSave()"
+					label="Enregistrer">
+			</button>
+			<p-button label="Annuler"
+					  type="button"
+					  styleClass="p-button-link"
+					  (click)="onClose()">
+			</p-button>
+		</div>
+		<span *ngIf="loading" class="app-spinner m-2"></span>
+	</p-footer>
+</p-dialog>

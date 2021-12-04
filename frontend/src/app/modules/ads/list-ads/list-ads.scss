@@ -1,0 +1,20 @@
+.datagrid {
+	th {
+		> input {
+			border: 1px solid #d6d6d6;
+			width: 98.5%;
+			height: 25px
+		}
+	}
+
+	.ml {
+		margin-left: 4px;
+	}
+}
+
+.footer {
+	margin-top: 40px;
+	 p-button {
+		 margin-right: 5px;
+	 }
+}

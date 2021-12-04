@@ -1,0 +1,34 @@
+<p-toast></p-toast>
+<p-dialog [(visible)]="visible"
+		  [baseZIndex]="1000"
+		  [modal]="true"
+		  [responsive]="true"
+		  [closeOnEscape]="false"
+		  [draggable]="true"
+		  [resizable]="false"
+		  (onShow)="openModal()"
+		  (onHide)="onClose()"
+		  [focusOnShow]="false"
+		  [style]="{width: '25vw'}">
+	<p-header>
+		Suppression d'une annonce
+	</p-header>
+	<div class="container-fluid" style="text-align: center">
+		Voulez-vous supprimer cette annonce ?
+	</div>
+	<p-footer>
+		<div [hidden]="loading">
+			<button type="button"
+					pButton
+					(click)="onSupprimer()"
+					label="Supprimer">
+			</button>
+			<p-button label="Annuler"
+					  type="button"
+					  styleClass="p-button-link"
+					  (click)="onClose()">
+			</p-button>
+		</div>
+		<span *ngIf="loading" class="app-spinner m-2"></span>
+	</p-footer>
+</p-dialog>
