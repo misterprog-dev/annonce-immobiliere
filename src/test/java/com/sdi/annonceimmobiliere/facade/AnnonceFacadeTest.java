@@ -2,13 +2,17 @@ package com.sdi.annonceimmobiliere.facade;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static java.util.Optional.ofNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hibernate.validator.internal.util.CollectionHelper.asSet;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.ALL;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
@@ -20,13 +24,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.sdi.annonceimmobiliere.domain.Annonce;
 import com.sdi.annonceimmobiliere.presentation.factory.AnnonceVoFactory;
 import com.sdi.annonceimmobiliere.presentation.vo.AnnonceVO;
 import com.sdi.annonceimmobiliere.repository.AnnonceRepository;
-import com.sdi.annonceimmobiliere.service.FileUploadService;
+import com.sdi.annonceimmobiliere.service.FileStorageService;
 
 @ExtendWith(SpringExtension.class)
 public class AnnonceFacadeTest {
@@ -38,7 +44,7 @@ public class AnnonceFacadeTest {
 	private AnnonceVoFactory annonceVoFactory;
 
 	@Mock
-	private FileUploadService fileUploadService;
+	private FileStorageService fileStorageService;
 
 	@InjectMocks
 	@Spy
@@ -71,7 +77,7 @@ public class AnnonceFacadeTest {
 		assertThat(results)
 				.hasSize(2)
 				.extracting(AnnonceVO::getTitle)
-				.containsExactly("Anonce 1", "Anonce 2");
+				.containsOnly("Anonce 1", "Anonce 2");
 	}
 
 	@Test
@@ -92,7 +98,7 @@ public class AnnonceFacadeTest {
 	}
 
 	@Test
-	public void shouldReadAd_WhenReadAd_WithException() {
+	public void shouldLeverException_WhenReadAd_WithException() {
 		// GIVEN
 		when(annonceRepository.findById(1L)).thenReturn(empty());
 
@@ -118,10 +124,11 @@ public class AnnonceFacadeTest {
 		// THEN
 		verify(annonceRepository).findById(1L);
 		verify(annonceRepository).delete(annonce1);
+		verify(fileStorageService).delete("1");
 	}
 
 	@Test
-	public void shouldDeleteAd_WhenDeleteAd_WithException() {
+	public void shouldLeverException_WhenDeleteAd_WithException() {
 		// GIVEN
 		when(annonceRepository.findById(1L)).thenReturn(empty());
 
@@ -133,9 +140,88 @@ public class AnnonceFacadeTest {
 		// THEN
 		verify(annonceRepository).findById(1L);
 		verify(annonceRepository, never()).delete(annonce1);
+		verify(fileStorageService, never()).delete("1");
 		assertThat(exception.getMessage()).isEqualTo("Entity not found");
 	}
 
+	@Test
+	public void shouldSave_WhenSave_WithImage(){
+		// GIVEN
+		AnnonceVO annonceVO = mock(AnnonceVO.class);
+		when(annonceVO.getTitle()).thenReturn("A");
+		when(annonceVO.getDescription()).thenReturn("AB");
+		Annonce annonce = mock(Annonce.class);
+		when(annonce.getId()).thenReturn(1L);
+		MultipartFile file = new MockMultipartFile("Image.png", "Image.png", ALL.getType(), new byte[123]);
+		when(annonceRepository.save(any())).thenReturn(annonce);
 
+		// WHEN
+		annonceFacade.save(annonceVO, file);
+
+		// THEN
+		verify(annonceRepository).save(any());
+		verify(fileStorageService).save(file, "1", false);
+	}
+
+	@Test
+	public void shouldSave_WhenSave_WithoutImage(){
+		// GIVEN
+		AnnonceVO annonceVO = mock(AnnonceVO.class);
+		when(annonceVO.getTitle()).thenReturn("A");
+		when(annonceVO.getDescription()).thenReturn("AB");
+		Annonce annonce = mock(Annonce.class);
+		when(annonce.getId()).thenReturn(1L);
+		when(annonceRepository.save(any())).thenReturn(annonce);
+
+		// WHEN
+		annonceFacade.save(annonceVO, null);
+
+		// THEN
+		verify(annonceRepository).save(any());
+		verify(fileStorageService, never()).save(null, "1", false);
+	}
+
+	@Test
+	public void shouldUpdate_WhenUpdate_WithImage() {
+		// GIVEN
+		AnnonceVO annonceVO = mock(AnnonceVO.class);
+		when(annonceVO.getTitle()).thenReturn("A");
+		when(annonceVO.getDescription()).thenReturn("AB");
+
+		Annonce annonce = mock(Annonce.class);
+		when(annonce.getId()).thenReturn(1L);
+		when(annonceRepository.findById(1L)).thenReturn(of(annonce));
+
+		MultipartFile file = new MockMultipartFile("Image.png", "Image.png", ALL.getType(), new byte[123]);
+
+		// WHEN
+		annonceFacade.update(1L, annonceVO, file);
+
+		// THEN
+		verify(annonceRepository).save(any());
+		verify(fileStorageService).save(file, "1", true);
+		verify(fileStorageService, never()).delete(any());
+	}
+
+	@Test
+	public void shouldUpdate_WhenUpdate_WithoutImage() {
+		// GIVEN
+		AnnonceVO annonceVO = mock(AnnonceVO.class);
+		when(annonceVO.getTitle()).thenReturn("A");
+		when(annonceVO.getDescription()).thenReturn("AB");
+
+		Annonce annonce = mock(Annonce.class);
+		when(annonce.getId()).thenReturn(1L);
+		when(annonceRepository.findById(1L)).thenReturn(of(annonce));
+
+
+		// WHEN
+		annonceFacade.update(1L, annonceVO, null);
+
+		// THEN
+		verify(annonceRepository).save(any());
+		verify(fileStorageService, never()).save(null, "1", true);
+		verify(fileStorageService).delete("1");
+	}
 
 }

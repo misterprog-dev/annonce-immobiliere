@@ -2,8 +2,10 @@ package com.sdi.annonceimmobiliere.controller;
 
 import static org.apache.tomcat.util.http.fileupload.FileUploadBase.MULTIPART_FORM_DATA;
 
+import javax.validation.Valid;
 import java.util.Set;
 
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -63,8 +65,8 @@ public class AnnonceController {
 	 * @param image image of ad.
 	 */
 	@PostMapping(consumes = MULTIPART_FORM_DATA)
-	public void save(@RequestPart("annonce") AnnonceVO annonceVO,
-					 @RequestPart("image") MultipartFile image) {
+	public void save(@RequestPart("annonce") @Valid AnnonceVO annonceVO,
+					 @RequestPart(name="image", required= false) MultipartFile image) {
 		annonceFacade.save(annonceVO, image);
 	}
 
@@ -75,10 +77,22 @@ public class AnnonceController {
 	 * @param annonceVO ad information.
 	 * @param image image of ad.
 	 */
-	@PutMapping(consumes = MULTIPART_FORM_DATA)
+	@PutMapping(value = "{id}", consumes = MULTIPART_FORM_DATA)
 	public void update(@PathVariable Long id,
-					   @RequestPart("annonce") AnnonceVO annonceVO,
-					   @RequestPart("image") MultipartFile image) {
+					   @RequestPart("annonce") @Valid AnnonceVO annonceVO,
+					   @RequestPart(name="image", required= false) MultipartFile image) {
 		annonceFacade.update(id, annonceVO, image);
+	}
+
+	/**
+	 * Read a file of ad.
+	 *
+	 * @param folder the folder of file.
+	 * @param fileName the file name.
+	 * @return a file of ad.
+	 */
+	@GetMapping(value = "{folder}/{fileName}/file")
+	public Resource getFile(@PathVariable String folder, @PathVariable String fileName) {
+		return annonceFacade.getFile(folder, fileName);
 	}
 }

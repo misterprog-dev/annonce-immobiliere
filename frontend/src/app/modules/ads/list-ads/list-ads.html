@@ -1,16 +1,16 @@
 <p-toast></p-toast>
-<div class="container-fluid mt-5" style="width: 80%;margin: auto;">
+<div class="container-fluid mt-5 list-ad">
 	<div class="row">
 		<div class="col-10 datagrid">
 			<p-table #annonceDG
 					 [value]="annonces"
 					 loadingIcon="app-spinner"
 					 [paginator]="true"
-					 [rows]="14"
+					 [rows]="20"
 					 [loading]="loading"
 					 [(selection)]="annoncesSelectionnes"
 					 [scrollable]="true"
-					 scrollHeight="420px"
+					 scrollHeight="620px"
 					 [resetPageOnSort]="false"
 					 (onFilter)="onFilterTable($event?.filteredValue)"
 					 selectionMode="multiple"
@@ -52,18 +52,21 @@
 							<td class="text-center">
 								<p-tableCheckbox [value]="annonce" (click)="$event.stopPropagation()"></p-tableCheckbox>
 							</td>
-							<td></td>
+							<td style="text-align: center">
+								<img *ngIf="!!annonce.fileName"
+									 src="{{ './assets/upload/' + annonce.id + '/' + annonce.fileName }}"
+									 alt="{{ annonce.fileName }}"
+									 height="80px"
+									 width="100"/></td>
 							<td class="text-left">{{ annonce.title }}</td>
 							<td class="text-left">{{ annonce.description }}</td>
 							<td class="col-actions">
 								<p-button icon="pi pi-pencil"
-										  *ngIf="!!annoncesSelectionnes && annoncesSelectionnes.length === 1"
 										  title="Modifier"
 										  (click)="openEditingModal(annonce)"></p-button>
 								<p-button icon="pi pi-times"
 										  class="ml"
 										  title="Supprimer"
-										  *ngIf="!!annoncesSelectionnes && annoncesSelectionnes.length === 1"
 										  (click)="openDeletingModal(annonce)"></p-button>
 							</td>
 						</ng-container>

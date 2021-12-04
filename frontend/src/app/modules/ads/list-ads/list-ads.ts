@@ -59,7 +59,7 @@ export class ListAds implements OnInit {
 	openEditingModal(annonce?: Annonce): void {
 		this.editingVisible = true;
 		// @ts-ignore
-		this.annoncesSelectionnes = annonce;
+		this.annonceSelectionne = annonce;
 	}
 
 	/**
