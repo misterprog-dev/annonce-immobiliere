@@ -1,9 +1,13 @@
 package com.sdi.annonceimmobiliere.presentation.vo;
+import javax.validation.constraints.NotNull;
+
 import com.sdi.annonceimmobiliere.domain.Annonce;
 
 public class AnnonceVO {
 	private Long id;
+	@NotNull
 	private String title;
+	@NotNull
 	private String description;
 	private String fileName;
 
