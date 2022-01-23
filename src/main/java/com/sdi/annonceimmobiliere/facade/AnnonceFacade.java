@@ -4,8 +4,6 @@ import javax.persistence.EntityNotFoundException;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +21,6 @@ import com.sdi.annonceimmobiliere.service.FileStorageService;
  */
 @Service
 public class AnnonceFacade {
-	private static final Logger logger = LoggerFactory.getLogger(AnnonceFacade.class);
 
 	private final AnnonceRepository annonceRepository;
 	private final AnnonceVoFactory annonceVoFactory;
