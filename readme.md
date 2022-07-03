@@ -31,11 +31,13 @@ ALTER schema public owner to annonceimmobiliere;
 1. Tomcat server
 
 ```bash
+cd backend/
 ./gradlew bootrun
 ```
 
 2. Launch TU
 ```bash
+cd backend/
 ./gradlew clean build
 ```
 

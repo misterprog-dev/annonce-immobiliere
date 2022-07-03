@@ -1,0 +1,38 @@
+version: '3'
+services:
+  db:
+    image: postgres:14.1-alpine
+    container_name: ads_postgres
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgres/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=annonceimmobiliere
+      - POSTGRES_USERNAME=annonceimmobiliere
+      - POSTGRES_PASSWORD=annonceimmobiliere
+
+  backend:
+    build: backend
+    container_name: ads_backend
+    restart: always
+    environment:
+      - DB_SERVER=db
+      - POSTGRES_DB=annonceimmobiliere
+      - POSTGRES_USER=annonceimmobiliere
+      - POSTGRES_PASSWORD=annonceimmobiliere
+    ports:
+      - "9080:9080"
+    links:
+      - db
+
+  frontend:
+    build: frontend
+    container_name: ads_frontend
+    ports:
+      - "3000:3000"
+    links:
+      - backend
+volumes:
+  db-data: {}
